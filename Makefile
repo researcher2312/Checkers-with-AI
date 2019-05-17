@@ -14,7 +14,7 @@ main.o:
 clean:
 	rm -f $(OBJECTS) checkers
 
-%.o : $(SOURCE)%.cpp %.h
+%.o : $(SOURCE)%.cpp 
 	$(CXX) -c $(CPPFLAGS) $<
 
 %.h : $(INCLUDE)%.h
