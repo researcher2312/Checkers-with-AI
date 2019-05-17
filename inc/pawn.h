@@ -1,6 +1,15 @@
 #ifndef PAWN_H
+#define PAWN_H
 
-#include "game.h"
+enum OwningPlayer{
+	human,
+	computer,
+};
+
+enum PawnLevel{
+	normal,
+	king,
+};
 
 class Pawn{
 public:
@@ -10,8 +19,6 @@ public:
 	int position[2];
 	OwningPlayer player;
 	PawnLevel level;
-
 };
 
-#define PAWN_H value
 #endif

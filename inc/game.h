@@ -1,16 +1,15 @@
 #ifndef GAME_H
+#define GAME_H
 
-enum OwningPlayer{
-	human,
-	computer,
+#include "pawn.h"
+#include "board.h"
+#include <vector>
+
+class Game{
+public:
+	std::vector<Pawn> human_pawns;
+	std::vector<Pawn> computer_pawns;
+	Board game_board;
+
 };
-
-enum PawnLevel{
-	normal,
-	king,
-};
-
-
-
-#define GAME_H value
 #endif
