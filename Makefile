@@ -1,10 +1,11 @@
 CXX = g++
 
 CPPFLAGS = -Wall -pedantic -std=c++17 -g -I ./inc
+SFMLFAGS = -lsfml-graphics -lsfml-window -lsfml-system
 OBJECTS = main.o game.o pawn.o board.o
 
 graf: $(OBJECTS)
-	g++ -o checkers $(CPPFLAGS) $(OBJECTS)
+	g++ -o checkers $(CPPFLAGS) $(SFMLFLAGS) $(OBJECTS)
 
 main.o:
 game.o: inc/game.h inc/pawn.h inc/board.h

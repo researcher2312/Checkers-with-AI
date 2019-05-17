@@ -4,6 +4,7 @@
 #include "pawn.h"
 #include "board.h"
 #include <vector>
+#include <SFML/Graphics.hpp>
 
 class Game{
 public:
