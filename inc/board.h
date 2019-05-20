@@ -1,16 +1,11 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-struct BoardField{
-	int x;
-	int y;
-	int size;
-	Pawn* pawn;
-	void lightUp();
-};
+#include "pawn.h"
+
 
 class Board{
 public:
-	BoardField[8][8];
+	Pawn* field[8][8]= {0};
 };
 #endif
