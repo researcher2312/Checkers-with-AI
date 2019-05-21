@@ -13,7 +13,7 @@ enum PawnLevel{
 
 class Pawn{
 public:
-	Pawn(OwningPlayer, int, int);
+	Pawn(int, int, OwningPlayer);
 	void move();
 	void lightUp();
 	OwningPlayer player;
