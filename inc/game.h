@@ -7,20 +7,24 @@
 #include "pawn.h"
 #include "board.h"
 
-const int size = 612;
-
+const int board_size = 800;
+const int field_size = 77;
+const int border_size = 92;
 class Game{
 public:
 	Game();
 	void start();
 	void play();
 	void end();
+	void view();
 	sf::RenderWindow window;
 	sf::Texture textures[5];
 	sf::Sprite sprites[5];
-	std::vector<Pawn> human_pawns;
-	std::vector<Pawn> computer_pawns;
-	Board game_board;
+	std::vector<Pawn> pawns;
+	// std::vector<Pawn*> activepawns;
+	// std::vector<Pawn*> pawns;
 
+	Board game_board;
+	OwningPlayer active_player = human;
 };
 #endif
