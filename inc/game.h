@@ -17,6 +17,7 @@ public:
 	void play();
 	void end();
 	void view();
+	bool pollEvents(sf::Vector2i& mouse_position);
 	sf::RenderWindow window;
 	sf::Texture textures[5];
 	sf::Sprite sprites[5];

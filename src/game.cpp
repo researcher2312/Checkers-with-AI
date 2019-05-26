@@ -34,20 +34,30 @@ void Game::start(){
 
 void Game::play(){
 	sf::Vector2i mouse_position;
-	sf::Event event;
+	bool mouse_pressed;
 	while (window.isOpen()){
-		while (window.pollEvent(event)){
-			if (event.type == sf::Event::Closed){
-				window.close();
-			}
-			if (event.type == sf::Event::MouseButtonPressed){
-				if (event.mouseButton.button == sf::Mouse::Left){
-					mouse_position.x = event.mouseButton.x;
-					mouse_position.y = event.mouseButton.y;
-				}
+		mouse_pressed = 0;
+		
+
+	}
+}
+
+bool Game::pollEvents(sf::Vector2i& mouse_position){
+	sf::Event event;
+	while (window.pollEvent(event)){
+		if (event.type == sf::Event::Closed){
+			window.close();
+			return 0;
+		}
+		if (event.type == sf::Event::MouseButtonPressed){
+			if (event.mouseButton.button == sf::Mouse::Left){
+				mouse_position.x = event.mouseButton.x;
+				mouse_position.y = event.mouseButton.y;
+				return 1;
 			}
 		}
 	}
+	return 0;
 }
 
 void Game::view(){
