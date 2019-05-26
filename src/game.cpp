@@ -33,11 +33,19 @@ void Game::start(){
 }
 
 void Game::play(){
-	sf::Vector2i mouse_position;
-	bool mouse_pressed;
+	sf::Vector2i mouse_position, start, finish;
+	bool mouse_pressed=false, first_pawn_chosen=false;
 	while (window.isOpen()){
-		mouse_pressed = 0;
-		
+		mouse_pressed = pollEvents(mouse_position);
+		if (mouse_pressed){
+			if(mouse_position.x > border_size && mouse_position.x < board_size - border_size &&
+					mouse_position.y > border_size && mouse_position.y < board_size - border_size){
+				int x = (mouse_position.x - border_size) / field_size + 1;
+				int y = (mouse_position.y - border_size) / field_size + 1;
+				y = 9 - y;
+				std::cerr << x << ' ' << y << '\n';
+			}
+		}
 
 	}
 }
