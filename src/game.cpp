@@ -55,17 +55,17 @@ bool Game::pollEvents(sf::Vector2i& mouse_position){
 	while (window.pollEvent(event)){
 		if (event.type == sf::Event::Closed){
 			window.close();
-			return 0;
+			return false;
 		}
 		if (event.type == sf::Event::MouseButtonPressed){
 			if (event.mouseButton.button == sf::Mouse::Left){
 				mouse_position.x = event.mouseButton.x;
 				mouse_position.y = event.mouseButton.y;
-				return 1;
+				return true;
 			}
 		}
 	}
-	return 0;
+	return false;
 }
 
 void Game::view(){
