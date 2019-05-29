@@ -38,19 +38,36 @@ void Game::start(){
 
 void Game::play(){
 	sf::Vector2i mouse_position, start, finish;
-	bool mouse_pressed=false, first_pawn_chosen=false;
+	sf::Vector2i* updated_vector;
+	Pawn* active_pawn = nullptr;
+	bool mouse_pressed=false;
 	while (window.isOpen()){
 		mouse_pressed = pollEvents(mouse_position);
 		if (mouse_pressed){
 			if(mouse_position.x > border_size && mouse_position.x < board_size - border_size &&
 					mouse_position.y > border_size && mouse_position.y < board_size - border_size){
-				int x = (mouse_position.x - border_size) / field_size + 1;
-				int y = (mouse_position.y - border_size) / field_size + 1;
-				y = 9 - y;
-				std::cerr << x << ' ' << y << '\n';
+				if (!active_pawn){
+					updated_vector = &start;
+				}
+				else{
+					updated_vector = &finish;
+				}
+				updated_vector->x = (mouse_position.x - border_size) / field_size + 1;
+				updated_vector->y = (mouse_position.y - border_size) / field_size + 1;
+				updated_vector->y = 9 - updated_vector->y;
+				if (active_pawn){
+					//std::cerr << "checking move " << start.x << start.y << '-' << finish.x << finish.y << '\n';
+					if (game_board.moveIsValid(start, finish)){
+						//active_pawn->move(finish);
+						std::cerr << "valid move\n";
+					}
+					active_pawn = nullptr;
+				}
+				else {
+					active_pawn = game_board.getPawn(start);
+				}
 			}
 		}
-
 	}
 }
 
