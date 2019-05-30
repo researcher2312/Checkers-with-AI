@@ -2,6 +2,7 @@
 #define BOARD_H
 
 #include "pawn.h"
+#include <memory>
 
 #include <SFML/Graphics.hpp>
 
@@ -13,8 +14,8 @@ enum MoveType{
 
 class Board{
 public:
-	Pawn* field[8][8]= {nullptr};
-	Pawn* getPawn(sf::Vector2i& coords);
-	MoveType checkMove(Pawn* pawn, sf::Vector2i& start, sf::Vector2i& finish);
+	std::shared_ptr<Pawn> field[8][8]= {nullptr};
+	std::shared_ptr<Pawn> getPawn(sf::Vector2i& coords);
+	MoveType checkMove(std::shared_ptr<Pawn> pawn, sf::Vector2i& start, sf::Vector2i& finish);
 };
 #endif

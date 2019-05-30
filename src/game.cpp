@@ -26,21 +26,23 @@ Game::Game(){
 		sprites[i].setScale(0.6,0.6);
 	}
 	//pawn vector initialization
+	float new_x, new_y;
+	OwningPlayer new_player;
+	std::shared_ptr<Pawn> new_pawn_ptr;
 	for (int i = 0; i < 8; ++i){
 		for (int j = 0; j < 8; ++j){
 			if (i%2 == j%2){
-				float new_x = border_size + i * field_size + 5;
-				float new_y = border_size + (7-j) * field_size + 5;
-				Pawn* new_pawn;
-				if (j < 3){
-					new_pawn = new Pawn(new_x, new_y, human);
-					game_board.field[i][j] = new_pawn;
+				if (j < 3 || j > 4){
+					new_x = border_size + i * field_size + 5;
+					new_y = border_size + (7-j) * field_size + 5;
+					if (j < 3)
+						new_player = human;
+					else if (j > 4)
+						new_player = computer;
+					new_pawn_ptr = std::shared_ptr<Pawn>(new Pawn(new_x, new_y, new_player));
+					game_board.field[i][j] = new_pawn_ptr;
+					pawns.push_back(std::weak_ptr(new_pawn_ptr));
 				}
-				else if (j > 4){
-					new_pawn = new Pawn(new_x, new_y, computer);
-					game_board.field[i][j] = new_pawn;
-				}
-				pawns.push_back(new_pawn);
 			}
 		}
 	}
@@ -55,7 +57,7 @@ void Game::start(){
 int Game::manualMove(OwningPlayer player){
 	sf::Vector2i mouse_position, start, finish;
 	sf::Vector2i* updated_vector;
-	Pawn* active_pawn = nullptr;
+	std::shared_ptr<Pawn> active_pawn;
 	bool mouse_pressed=false;
 	while (window.isOpen()){
 		mouse_pressed = pollEvents(mouse_position);
@@ -123,8 +125,8 @@ void Game::view(){
 	window.draw(sprites[0]);
 	int sprite_number;
 	//draw the pawns
-	for(auto pawn: pawns){
-		if (pawn != nullptr){
+	for(auto pawn_ptr: pawns){
+		if (auto pawn = pawn_ptr.lock()){
 			if (pawn->owner == human)
 				sprite_number = 1;
 			else
@@ -136,23 +138,23 @@ void Game::view(){
 	window.display();
 }
 
-void Game::movePawn(Pawn* pawn, sf::Vector2i& start, sf::Vector2i& finish, MoveType type){
+void Game::movePawn(std::shared_ptr<Pawn> pawn_ptr, sf::Vector2i& start, sf::Vector2i& finish, MoveType type){
 	int direction = 1;
-	if (pawn->owner == computer)
+	if (pawn_ptr->owner == computer)
 		direction = -1;
 	float distance_x = ((finish.x - start.x) * field_size) / 10;
 	float distance_y = ((finish-start).y * field_size) / 10;
 	game_board.field[start.x][start.y] = nullptr;
-	game_board.field[finish.x][finish.y] = pawn;
+	game_board.field[finish.x][finish.y] = pawn_ptr;
 	for (int i = 0; i < 10; ++i){
-		pawn->x += distance_x;
-		pawn->y -= distance_y;
+		pawn_ptr->x += distance_x;
+		pawn_ptr->y -= distance_y;
 		delay(20);
 		view();
 	}
 	if(type == BEAT){
 		sf::Vector2i beaten_pawn(start.x + (finish.x - start.x)/2, start.y + direction);
-		delete game_board.field[beaten_pawn.x][beaten_pawn.y];
+		game_board.field[beaten_pawn.x][beaten_pawn.y].reset();
 		game_board.field[beaten_pawn.x][beaten_pawn.y] = nullptr;
 
 	}

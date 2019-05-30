@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <vector>
+#include <memory>
 #include <SFML/Graphics.hpp>
 
 #include "pawn.h"
@@ -18,13 +19,13 @@ public:
 	void end();
 	void view();
 	int manualMove(OwningPlayer player);
-	void movePawn(Pawn* pawn, sf::Vector2i& start, sf::Vector2i& finish, MoveType type);
+	void movePawn(std::shared_ptr<Pawn> pawn_ptr, sf::Vector2i& start, sf::Vector2i& finish, MoveType type);
 	bool pollEvents(sf::Vector2i& mouse_position);
 	sf::RenderWindow window;
 	sf::Texture textures[5];
 	sf::Sprite sprites[5];
 	sf::Image icon;
-	std::vector<Pawn*> pawns;
+	std::vector<std::weak_ptr<Pawn>> pawns;
 	// std::vector<Pawn*> activepawns;
 	// std::vector<Pawn*> pawns;
 
