@@ -17,7 +17,8 @@ public:
 	void play();
 	void end();
 	void view();
-	void movePawn(Pawn* pawn, sf::Vector2i& start, sf::Vector2i& finish);
+	int manualMove(OwningPlayer player);
+	void movePawn(Pawn* pawn, sf::Vector2i& start, sf::Vector2i& finish, MoveType type);
 	bool pollEvents(sf::Vector2i& mouse_position);
 	sf::RenderWindow window;
 	sf::Texture textures[5];

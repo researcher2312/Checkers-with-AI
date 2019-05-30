@@ -8,6 +8,8 @@ enum OwningPlayer{
 	computer,
 };
 
+OwningPlayer otherPlayer(OwningPlayer current_player);
+
 enum PawnLevel{
 	normal,
 	king,
@@ -17,7 +19,7 @@ class Pawn{
 public:
 	Pawn(int, int, OwningPlayer);
 	void lightUp();
-	OwningPlayer player;
+	OwningPlayer owner;
 	PawnLevel level = normal;
 	float x;
 	float y;
