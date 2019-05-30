@@ -1,8 +1,8 @@
 #include "board.h"
 
 Pawn* Board::getPawn(sf::Vector2i& coords){
-	if (field[coords.x-1][coords.y-1] != nullptr)
-		return field[coords.x-1][coords.y-1];
+	if (field[coords.x][coords.y] != nullptr)
+		return field[coords.x][coords.y];
 	else
 		return nullptr;
 }
