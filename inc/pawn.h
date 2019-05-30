@@ -1,6 +1,8 @@
 #ifndef PAWN_H
 #define PAWN_H
 
+#include <SFML/Graphics.hpp>
+
 enum OwningPlayer{
 	human,
 	computer,
@@ -14,12 +16,11 @@ enum PawnLevel{
 class Pawn{
 public:
 	Pawn(int, int, OwningPlayer);
-	void move();
 	void lightUp();
 	OwningPlayer player;
-	PawnLevel level;
-	int x;
-	int y;
+	PawnLevel level = normal;
+	float x;
+	float y;
 };
 
 #endif
