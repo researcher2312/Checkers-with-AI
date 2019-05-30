@@ -1,6 +1,15 @@
 #include "game.h"
 #include <iostream>
 
+void delay(int miliseconds){
+	sf::Clock clock;
+	clock.restart();
+	while(1){
+		if(clock.getElapsedTime().asMilliseconds() > miliseconds)
+			break;
+	}
+}
+
 Game::Game(){
 	//texture initialization
 	textures[0].loadFromFile("./graphics/board.jpg");
@@ -100,12 +109,27 @@ void Game::view(){
 	int sprite_number;
 	//draw the pawns
 	for(auto pawn: pawns){
-		if (pawn.player == human)
+		if (pawn->player == human)
 			sprite_number = 1;
 		else
 			sprite_number = 2;
-		sprites[sprite_number].setPosition(border_size+(pawn.x)*field_size+5,border_size+(7-pawn.y)*field_size+5);
+		sprites[sprite_number].setPosition(pawn->x, pawn->y);
 		window.draw(sprites[sprite_number]);
 	}
 	window.display();
+}
+
+void Game::movePawn(Pawn* pawn, sf::Vector2i& start, sf::Vector2i& finish){
+	float distance_x = (finish-start).x * field_size / 10;
+	float distance_y = (finish-start).y * field_size / 10;
+	game_board.field[start.x][start.y] = nullptr;
+	game_board.field[finish.x][finish.y] = pawn;
+	for (int i = 0; i <= 10; ++i){
+		pawn->x += distance_x;
+		pawn->y -= distance_y;
+		delay(20);
+		view();
+	}
+	view();
+	
 }
