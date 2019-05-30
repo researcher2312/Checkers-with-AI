@@ -29,8 +29,8 @@ Game::Game(){
 	for (int i = 0; i < 8; ++i){
 		for (int j = 0; j < 8; ++j){
 			if (i%2 == j%2){
-				int new_x = border_size + i * field_size + 5;
-				int new_y = border_size + (7-j) * field_size + 5;
+				float new_x = border_size + i * field_size + 5;
+				float new_y = border_size + (7-j) * field_size + 5;
 				Pawn* new_pawn;
 				if (j < 3){
 					new_pawn = new Pawn(new_x, new_y, human);

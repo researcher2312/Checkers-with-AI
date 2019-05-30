@@ -7,9 +7,9 @@
 #include "pawn.h"
 #include "board.h"
 
-const int board_size = 800;
-const int field_size = 77;
-const int border_size = 92;
+const float board_size = 800;
+const float field_size = 77.5;
+const float border_size = 91;
 class Game{
 public:
 	Game();
