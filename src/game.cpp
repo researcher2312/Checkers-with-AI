@@ -11,6 +11,8 @@ void delay(int miliseconds){
 }
 
 Game::Game(){
+	//icon initialization
+	icon.loadFromFile("./graphics/red.png");
 	//texture initialization
 	textures[0].loadFromFile("./graphics/board.jpg");
 	textures[1].loadFromFile("./graphics/black.png");
@@ -46,6 +48,7 @@ Game::Game(){
 
 void Game::start(){
 	window.create(sf::VideoMode(board_size, board_size), "Miloszland-Checkers");
+	window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 	view();
 }
 
