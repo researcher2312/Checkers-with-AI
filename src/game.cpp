@@ -18,14 +18,18 @@ Game::Game(){
 	for (int i = 0; i < 8; ++i){
 		for (int j = 0; j < 8; ++j){
 			if (i%2 == j%2){
+				int new_x = border_size + i * field_size + 5;
+				int new_y = border_size + (7-j) * field_size + 5;
+				Pawn* new_pawn;
 				if (j < 3){
-					pawns.emplace(pawns.end(), i, j, human);
-					game_board.field[i][j] = &pawns.back();
+					new_pawn = new Pawn(new_x, new_y, human);
+					game_board.field[i][j] = new_pawn;
 				}
 				else if (j > 4){
-					pawns.emplace(pawns.end(), i, j, computer);
-					game_board.field[i][j] = &pawns.back();
+					new_pawn = new Pawn(new_x, new_y, computer);
+					game_board.field[i][j] = new_pawn;
 				}
+				pawns.push_back(new_pawn);
 			}
 		}
 	}

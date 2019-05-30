@@ -17,11 +17,13 @@ public:
 	void play();
 	void end();
 	void view();
+	void movePawn(Pawn* pawn, sf::Vector2i& start, sf::Vector2i& finish);
 	bool pollEvents(sf::Vector2i& mouse_position);
 	sf::RenderWindow window;
 	sf::Texture textures[5];
 	sf::Sprite sprites[5];
-	std::vector<Pawn> pawns;
+	sf::Image icon;
+	std::vector<Pawn*> pawns;
 	// std::vector<Pawn*> activepawns;
 	// std::vector<Pawn*> pawns;
 
