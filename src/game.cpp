@@ -73,9 +73,11 @@ int Game::manualMove(OwningPlayer player){
 				updated_vector->y = 7 - updated_vector->y;
 				if (active_pawn){
 					//std::cerr << start.x << start.y << '-' << finish.x << finish.y << '\n';
-					if (game_board.moveIsValid(start, finish)){
-						movePawn(active_pawn, start, finish);
-						//std::cerr << "valid move\n";
+					if(active_pawn->owner == player){
+						if (game_board.checkMove(active_pawn, start, finish) != INVALID){
+							movePawn(active_pawn, start, finish, game_board.checkMove(active_pawn, start, finish));
+							return 0;
+						}
 					}
 					active_pawn = nullptr;
 				}
@@ -122,26 +124,37 @@ void Game::view(){
 	int sprite_number;
 	//draw the pawns
 	for(auto pawn: pawns){
-		if (pawn->player == human)
-			sprite_number = 1;
-		else
-			sprite_number = 2;
-		sprites[sprite_number].setPosition(pawn->x, pawn->y);
-		window.draw(sprites[sprite_number]);
+		if (pawn != nullptr){
+			if (pawn->owner == human)
+				sprite_number = 1;
+			else
+				sprite_number = 2;
+			sprites[sprite_number].setPosition(pawn->x, pawn->y);
+			window.draw(sprites[sprite_number]);
+		}
 	}
 	window.display();
 }
 
-void Game::movePawn(Pawn* pawn, sf::Vector2i& start, sf::Vector2i& finish){
-	float distance_x = (finish-start).x * field_size / 10;
-	float distance_y = (finish-start).y * field_size / 10;
+void Game::movePawn(Pawn* pawn, sf::Vector2i& start, sf::Vector2i& finish, MoveType type){
+	int direction = 1;
+	if (pawn->owner == computer)
+		direction = -1;
+	float distance_x = ((finish.x - start.x) * field_size) / 10;
+	float distance_y = ((finish-start).y * field_size) / 10;
 	game_board.field[start.x][start.y] = nullptr;
 	game_board.field[finish.x][finish.y] = pawn;
-	for (int i = 0; i <= 10; ++i){
+	for (int i = 0; i < 10; ++i){
 		pawn->x += distance_x;
 		pawn->y -= distance_y;
 		delay(20);
 		view();
+	}
+	if(type == BEAT){
+		sf::Vector2i beaten_pawn(start.x + (finish.x - start.x)/2, start.y + direction);
+		delete game_board.field[beaten_pawn.x][beaten_pawn.y];
+		game_board.field[beaten_pawn.x][beaten_pawn.y] = nullptr;
+
 	}
 	view();
 	
