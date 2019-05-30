@@ -52,7 +52,7 @@ void Game::start(){
 	view();
 }
 
-void Game::play(){
+int Game::manualMove(OwningPlayer player){
 	sf::Vector2i mouse_position, start, finish;
 	sf::Vector2i* updated_vector;
 	Pawn* active_pawn = nullptr;
@@ -84,6 +84,16 @@ void Game::play(){
 				}
 			}
 		}
+	}
+	return 1;
+}
+
+void Game::play(){
+	while(1){
+		if(manualMove(human))
+			break;
+		if(manualMove(computer))
+			break;
 	}
 }
 
