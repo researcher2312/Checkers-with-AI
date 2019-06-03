@@ -36,12 +36,16 @@ Game::Game(){
 					new_x = border_size + i * field_size + 5;
 					new_y = border_size + (7-j) * field_size + 5;
 					if (j < 3)
-						new_player = human;
+						new_player = HUMAN;
 					else if (j > 4)
-						new_player = computer;
-					new_pawn_ptr = std::shared_ptr<Pawn>(new Pawn(new_x, new_y, new_player));
+						new_player = COMPUTER;
+					new_pawn_ptr = std::make_shared<Pawn>(i, j, new_x, new_y, new_player);
 					game_board.field[i][j] = new_pawn_ptr;
 					pawns.push_back(std::weak_ptr(new_pawn_ptr));
+					if (new_player == players[0])
+						player_pawns[0].push_back(std::weak_ptr(new_pawn_ptr));
+					else
+						player_pawns[1].push_back(std::weak_ptr(new_pawn_ptr));
 				}
 			}
 		}
@@ -139,27 +143,18 @@ void Game::view(){
 	window.display();
 }
 
-void Game::movePawn(std::shared_ptr<Pawn> pawn_ptr, sf::Vector2i& start, sf::Vector2i& finish, MoveType type){
-	int direction = 1;
-	if (pawn_ptr->owner == computer)
-		direction = -1;
-	float distance_x = ((finish.x - start.x) * field_size) / 10;
-	float distance_y = ((finish-start).y * field_size) / 10;
-	game_board.field[start.x][start.y] = nullptr;
-	game_board.field[finish.x][finish.y] = pawn_ptr;
-	for (int i = 0; i < 10; ++i){
-		pawn_ptr->x += distance_x;
-		pawn_ptr->y -= distance_y;
-		delay(20);
+void Game::makeMove(sf::Vector2i& start, sf::Vector2i& finish, MoveType type){
+	if(auto pawn = game_board.movePawn(start, finish, type)){
+		float distance_x = ((finish.x - start.x) * field_size) / 10;
+		float distance_y = ((finish-start).y * field_size) / 10;
+		for (int i = 0; i < 10; ++i){
+			pawn->x += distance_x;
+			pawn->y -= distance_y;
+			delay(20);
+			view();
+		}
 		view();
 	}
-	if(type == BEAT){
-		sf::Vector2i beaten_pawn(start.x + (finish.x - start.x)/2, start.y + direction);
-		game_board.field[beaten_pawn.x][beaten_pawn.y].reset();
-		game_board.field[beaten_pawn.x][beaten_pawn.y] = nullptr;
-
-	}
-	view();
 	
 }
 

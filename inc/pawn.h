@@ -18,12 +18,13 @@ enum PawnLevel{
 
 class Pawn{
 public:
-	Pawn(int, int, OwningPlayer);
+	Pawn(int, int, float, float, OwningPlayer);
 	void lightUp();
 	OwningPlayer owner;
 	PawnLevel level = normal;
 	float x;
 	float y;
+	sf::Vector2i coordinates;
 };
 
 #endif
