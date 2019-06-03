@@ -98,11 +98,20 @@ int Game::manualMove(OwningPlayer player){
 }
 
 void Game::play(){
+	OwningPlayer winner;
 	while(1){
-		if(manualMove(human))
+		if(manualMove(active_player))
 			break;
-		if(manualMove(computer))
+		active_player = otherPlayer(active_player);
+		winner = checkWin(active_player);
+		if (winner == HUMAN){
+			std::cout << "Wygrałeś!!!\n";
 			break;
+		}
+		else if (winner == COMPUTER){
+			std::cout << "LOOOSER :(\n";
+			break;
+		}
 	}
 }
 
