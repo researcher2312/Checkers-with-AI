@@ -4,8 +4,9 @@
 #include <SFML/Graphics.hpp>
 
 enum OwningPlayer{
-	human,
-	computer,
+	NOBODY,
+	HUMAN,
+	COMPUTER,
 };
 
 OwningPlayer otherPlayer(OwningPlayer current_player);

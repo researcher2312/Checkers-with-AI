@@ -76,8 +76,9 @@ int Game::manualMove(OwningPlayer player){
 				if (active_pawn){
 					//std::cerr << start.x << start.y << '-' << finish.x << finish.y << '\n';
 					if(active_pawn->owner == player){
-						if (game_board.checkMove(active_pawn, start, finish) != INVALID){
-							movePawn(active_pawn, start, finish, game_board.checkMove(active_pawn, start, finish));
+						MoveType result = game_board.checkMove(start, finish);
+						if (result != INVALID){
+							makeMove(start, finish, result);
 							return 0;
 						}
 					}
@@ -127,7 +128,7 @@ void Game::view(){
 	//draw the pawns
 	for(auto pawn_ptr: pawns){
 		if (auto pawn = pawn_ptr.lock()){
-			if (pawn->owner == human)
+			if (pawn->owner == HUMAN)
 				sprite_number = 1;
 			else
 				sprite_number = 2;
@@ -160,4 +161,30 @@ void Game::movePawn(std::shared_ptr<Pawn> pawn_ptr, sf::Vector2i& start, sf::Vec
 	}
 	view();
 	
+}
+
+OwningPlayer Game::checkWin(OwningPlayer player){
+	OwningPlayer winner = NOBODY;
+	std::vector<Move>* availible_moves;
+	int i = 0;
+	for (i = 0; i < 2; ++i){
+		if (player == players[i])
+			break;
+	}
+	availible_moves = game_board.getAvailibleMoves(players[i], player_pawns[i]);
+	if (availible_moves->empty()){
+		winner = otherPlayer(players[i]);
+	}
+	else {
+		int pawn_count = 0;
+		for (auto checked_pawn: player_pawns[i]){
+			if (checked_pawn.lock())
+				++pawn_count;
+		}
+		if(!pawn_count){
+			winner = otherPlayer(players[i]);
+		}
+	}
+	delete availible_moves;
+	return winner;
 }
