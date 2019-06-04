@@ -32,6 +32,10 @@ std::shared_ptr<Pawn> Board::movePawn(sf::Vector2i start, sf::Vector2i finish, M
 	return nullptr;
 }
 
+std::shared_ptr<Pawn> Board::movePawn(const Move& move){
+	return movePawn(move.start, move.finish, move.type);
+}
+
 MoveType Board::checkMove(sf::Vector2i& start, sf::Vector2i& finish){
 	MoveType result = INVALID;
 	if(finish.x >= 0 && finish.x <= 7 && finish.y >= 0 && finish.y <=7){
@@ -63,7 +67,7 @@ MoveType Board::checkMove(sf::Vector2i& start, sf::Vector2i& finish){
 	return result;
 }
 
-std::vector<Move>* Board::getAvailibleMoves(OwningPlayer player, const std::vector<std::weak_ptr<Pawn>>& pawn_vector){
+std::vector<Move>* Board::getAvailibleMoves(OwningPlayer player, const std::vector<std::weak_ptr<Pawn>> pawn_vector){
 	std::vector<Move>* move_vector = new std::vector<Move>;
 	for (auto pawn: pawn_vector){
 		auto new_moves = getAvailibleMoves(player, pawn);
@@ -74,7 +78,7 @@ std::vector<Move>* Board::getAvailibleMoves(OwningPlayer player, const std::vect
 	return move_vector;
 }
 
-std::vector<Move>* Board::getAvailibleMoves(OwningPlayer player, const std::weak_ptr<Pawn>& pawn_weak){
+std::vector<Move>* Board::getAvailibleMoves(OwningPlayer player, const std::weak_ptr<Pawn> pawn_weak){
 	std::vector<Move>* move_vector = new std::vector<Move>;
 	sf::Vector2i start, finish;
 	int direction = 1;

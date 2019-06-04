@@ -10,7 +10,7 @@ graf: $(OBJECTS)
 main.o: inc/game.h
 game.o: inc/game.h inc/pawn.h inc/board.h
 pawn.o: inc/pawn.h
-board.o: inc/board.h
+board.o: inc/board.h inc/pawn.h
 
 .PHONY: clean
 clean:

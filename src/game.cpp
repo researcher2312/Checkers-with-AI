@@ -1,5 +1,6 @@
 #include "game.h"
 #include <iostream>
+#include <algorithm>
 
 void delay(int miliseconds){
 	sf::Clock clock;
@@ -168,6 +169,7 @@ void Game::makeMove(sf::Vector2i& start, sf::Vector2i& finish, MoveType type){
 }
 
 OwningPlayer Game::checkWin(OwningPlayer player){
+	return NOBODY;
 	OwningPlayer winner = NOBODY;
 	std::vector<Move>* availible_moves;
 	int i = 0;
@@ -191,4 +193,37 @@ OwningPlayer Game::checkWin(OwningPlayer player){
 	}
 	delete availible_moves;
 	return winner;
+}
+int Game::minimax(Board& current_board, int depth, int maximizingPlayer){
+	std::cerr << "start poziom " << depth << '\n';
+	current_board.print();
+	int value;
+    if (depth == 0){ //or node is a terminal node
+    	int retval = current_board.getScore(COMPUTER, player_pawns[1]) - current_board.getScore(HUMAN, player_pawns[0]);
+    	std::cerr << " return " << retval << '\n';
+    	return retval;
+    }
+
+    std::vector<Move>* possible_moves = current_board.getAvailibleMoves(players[maximizingPlayer], player_pawns[maximizingPlayer]);
+    std::vector<Board>* possible_boards = new std::vector<Board>(possible_moves->size(), current_board);
+    std::cerr << possible_moves->size() << "dostępnych ruchów\n";
+    for (unsigned int i = 0; i < possible_moves->size(); ++i){
+    	possible_boards->at(i).movePawn(possible_moves->at(i));
+    }
+    if (players[maximizingPlayer] == COMPUTER){
+    	value = minus_infty;
+    	for (auto checked_board: *possible_boards){
+    		value = std::max(value, minimax(checked_board, depth - 1, 0));
+    	}
+    }
+    else{
+    	value = plus_infty;
+    	for (auto checked_board: *possible_boards){
+    		value = std::min(value, minimax(checked_board, depth - 1, 1));
+    	}
+    }
+    delete possible_moves;
+    delete possible_boards;
+    std::cerr << "stop poziom " << depth << "- " << value << '\n';
+    return value;
 }

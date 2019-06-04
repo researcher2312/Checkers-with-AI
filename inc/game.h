@@ -11,6 +11,8 @@
 const float board_size = 800;
 const float field_size = 77.5;
 const float border_size = 91;
+const int plus_infty = 10000;
+const int minus_infty = -10000;
 
 class Game{
 public:
@@ -20,6 +22,7 @@ public:
 	void end();
 	void view();
 	int manualMove(OwningPlayer player);
+	int minimax(Board&, int, int);
 	void makeMove(sf::Vector2i& start, sf::Vector2i& finish, MoveType type);
 	bool pollEvents(sf::Vector2i& mouse_position);
 	OwningPlayer checkWin(OwningPlayer player);
