@@ -95,3 +95,44 @@ std::vector<Move>* Board::getAvailibleMoves(OwningPlayer player, const std::weak
 	}
 	return move_vector;
 }
+
+int Board::getScore(OwningPlayer player, const std::vector<std::weak_ptr<Pawn>>& pawn_vector){
+	int score = 0;
+	for (auto pawn_weak: pawn_vector){
+		if (auto pawn = pawn_weak.lock()){
+			std::vector<Move>* move_vector = new std::vector<Move>;
+			int x = pawn->coordinates.x;
+			int y = pawn->coordinates.y;
+			score += 5;
+			if (player == HUMAN){
+				if (y == 2 || y == 3)
+					score += 1;
+				else if (y == 4 || y == 5)
+					score += 3;
+				else if (y == 6 || y == 7)
+					score += 17;
+			}
+			else{
+				if (y == 5 || y == 4)
+					score += 1;
+				else if (y == 3 || y == 2)
+					score += 3;
+				else if (y == 1 || y == 0)
+					score += 17;
+			}
+			if ((x == 0 || x == 7) && (y == 0 || y == 7))
+				score += 2;
+			else if ((x == 1 || x == 6) && (y == 1 || y == 6))
+				score += 1;
+			move_vector = getAvailibleMoves(player, pawn);
+			if (!move_vector->empty()){
+				for (auto tested_move: *move_vector){
+					if (tested_move.type == BEAT)
+						score += 30;
+				}
+			}
+			delete move_vector;
+		}
+	}
+	return score;
+}

@@ -30,6 +30,6 @@ public:
 	MoveType checkMove(sf::Vector2i& start, sf::Vector2i& finish);
 	std::vector<Move>* getAvailibleMoves(OwningPlayer player, const std::vector<std::weak_ptr<Pawn>>& pawns);
 	std::vector<Move>* getAvailibleMoves(OwningPlayer player, const std::weak_ptr<Pawn>& pawn);
-	int getScore (OwningPlayer player, const std::vector<std::weak_ptr<Pawn>>& pawns)
+	int getScore (OwningPlayer player, const std::vector<std::weak_ptr<Pawn>>& pawns);
 };
 #endif
