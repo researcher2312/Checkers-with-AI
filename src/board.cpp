@@ -64,6 +64,24 @@ int Board::setPawn(const sf::Vector2i& coords, const std::shared_ptr<Pawn>& new_
 	return 0;
 }
 
+void Board::print(){
+	for (int y = 7; y > -1 ; --y){
+		for (int x = 0; x < 8; ++x){
+			auto printed_pawn = getPawn(sf::Vector2i(x, y));
+			if (printed_pawn){
+				if (printed_pawn->owner == HUMAN)
+					std::cerr << 'O';
+				else
+					std::cerr << 'X';
+			}
+			else
+				std::cerr << ' ';
+		}
+		std::cerr << '\n';
+	}
+	std::cerr << '\n';
+}
+
 std::shared_ptr<Pawn> Board::movePawn(sf::Vector2i start, sf::Vector2i finish, MoveType type){
 	if (auto pawn = getPawn(start)){
 		int direction = 1;
