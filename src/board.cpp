@@ -1,6 +1,57 @@
 #include "board.h"
 #include <iostream>
 
+
+Board::Board(){	//pawn vector initialization
+	pawn_vector.reserve(24);
+	float new_x, new_y;
+	OwningPlayer new_player;
+	std::shared_ptr<Pawn> new_ptr;
+	for (int i = 0; i < 8; ++i){
+		for (int j = 0; j < 8; ++j){
+			if (i%2 == j%2){
+				if (j < 3 || j > 4){
+					new_x = border_size + i * field_size + 5;
+					new_y = border_size + (7-j) * field_size + 5;
+					if (j < 3)
+						new_player = HUMAN;
+					else if (j > 4)
+						new_player = COMPUTER;
+					new_ptr = std::make_shared<Pawn>(i, j, new_x, new_y, new_player);
+					field[i][j] = new_ptr;
+					pawn_vector.push_back(std::weak_ptr<Pawn>(new_ptr));
+					getVector(new_player).push_back(std::weak_ptr<Pawn>(new_ptr));
+				}
+			}
+		}
+	}
+}
+
+Board::~Board(){
+
+}
+
+Board::Board(const Board& copied){
+	for (int i = 0; i < 8; ++i){
+		for (int j = 0; j < 8; ++j){
+			if (copied.field[i][j]){
+				std::shared_ptr<Pawn> new_ptr = std::shared_ptr<Pawn>(new Pawn(*copied.field[i][j]));
+				field[i][j] = new_ptr;
+				pawn_vector.push_back(std::weak_ptr<Pawn>(new_ptr));
+				getVector(new_ptr->owner).push_back(std::weak_ptr<Pawn>(new_ptr));
+
+			}
+		}
+	}
+}
+
+std::vector<std::weak_ptr<Pawn>>& Board::getVector (OwningPlayer player){
+	if (player == HUMAN)
+		return player_pawns[0];
+	else
+		return player_pawns[1];
+}
+
 std::shared_ptr<Pawn> Board::getPawn(const sf::Vector2i& coords){
 	if (field[coords.x][coords.y] != nullptr)
 		return field[coords.x][coords.y];
