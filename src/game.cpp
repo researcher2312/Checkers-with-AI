@@ -25,32 +25,7 @@ Game::Game(){
 	for (int i = 1; i < 5; ++i){
 		sprites[i].setTexture(textures[i]);
 		sprites[i].setScale(0.6,0.6);
-	}
-	//pawn vector initialization
-	float new_x, new_y;
-	OwningPlayer new_player;
-	std::shared_ptr<Pawn> new_pawn_ptr;
-	for (int i = 0; i < 8; ++i){
-		for (int j = 0; j < 8; ++j){
-			if (i%2 == j%2){
-				if (j < 3 || j > 4){
-					new_x = border_size + i * field_size + 5;
-					new_y = border_size + (7-j) * field_size + 5;
-					if (j < 3)
-						new_player = HUMAN;
-					else if (j > 4)
-						new_player = COMPUTER;
-					new_pawn_ptr = std::make_shared<Pawn>(i, j, new_x, new_y, new_player);
-					game_board.field[i][j] = new_pawn_ptr;
-					pawns.push_back(std::weak_ptr(new_pawn_ptr));
-					if (new_player == players[0])
-						player_pawns[0].push_back(std::weak_ptr(new_pawn_ptr));
-					else
-						player_pawns[1].push_back(std::weak_ptr(new_pawn_ptr));
-				}
-			}
-		}
-	}
+	}	
 }
 
 void Game::start(){
@@ -83,7 +58,7 @@ int Game::manualMove(OwningPlayer player){
 					if(active_pawn->owner == player){
 						MoveType result = game_board.checkMove(start, finish);
 						if (result != INVALID){
-							makeMove(start, finish, result);
+							executeMove(start, finish, result);
 							return 0;
 						}
 					}
@@ -99,21 +74,34 @@ int Game::manualMove(OwningPlayer player){
 }
 
 void Game::play(){
-	OwningPlayer winner;
-	while(1){
-		if(manualMove(active_player))
+	Move computer_move;
+	OwningPlayer winner = NOBODY;
+	while(winner == NOBODY){
+		if(getMove(active_player))
 			break;
+		// std::cerr << alphabeta(game_board, computer_move, 2, COMPUTER, minus_infty, plus_infty);
 		active_player = otherPlayer(active_player);
-		winner = checkWin(active_player);
-		if (winner == HUMAN){
-			std::cout << "Wygrałeś!!!\n";
-			break;
+		winner = game_board.checkWin(active_player);
 		}
-		else if (winner == COMPUTER){
-			std::cout << "LOOOSER :(\n";
-			break;
-		}
-	}
+	if (winner == HUMAN)
+		std::cout << "Wygrałeś!!!\n";
+	else if (winner == COMPUTER)
+		std::cout << "LOOOSER :(\n";
+}
+
+int Game::computerMove(){
+	Move computer_move;
+	alphabeta(game_board, computer_move, 6, COMPUTER, minus_infty, plus_infty);
+	executeMove(computer_move.start, computer_move.finish, computer_move.type);
+	return 0;
+}
+
+int Game::getMove(OwningPlayer player){
+	game_board.resolveBeating(player);
+	if (player == COMPUTER)
+		return computerMove();
+	else
+		return manualMove(HUMAN);
 }
 
 bool Game::pollEvents(sf::Vector2i& mouse_position){
@@ -140,20 +128,20 @@ void Game::view(){
 	window.draw(sprites[0]);
 	int sprite_number;
 	//draw the pawns
-	for(auto pawn_ptr: pawns){
-		if (auto pawn = pawn_ptr.lock()){
-			if (pawn->owner == HUMAN)
+	for(const auto pawn_ptr: game_board.pawn_vector){
+		if (auto drawn_pawn = pawn_ptr.lock()){
+			if (drawn_pawn->owner == HUMAN)
 				sprite_number = 1;
 			else
 				sprite_number = 2;
-			sprites[sprite_number].setPosition(pawn->x, pawn->y);
+			sprites[sprite_number].setPosition(drawn_pawn->x, drawn_pawn->y);
 			window.draw(sprites[sprite_number]);
 		}
 	}
 	window.display();
 }
 
-void Game::makeMove(sf::Vector2i& start, sf::Vector2i& finish, MoveType type){
+void Game::executeMove(sf::Vector2i& start, sf::Vector2i& finish, MoveType type){
 	if(auto pawn = game_board.movePawn(start, finish, type)){
 		float distance_x = ((finish.x - start.x) * field_size) / 10;
 		float distance_y = ((finish-start).y * field_size) / 10;
@@ -168,62 +156,46 @@ void Game::makeMove(sf::Vector2i& start, sf::Vector2i& finish, MoveType type){
 	
 }
 
-OwningPlayer Game::checkWin(OwningPlayer player){
-	return NOBODY;
-	OwningPlayer winner = NOBODY;
-	std::vector<Move>* availible_moves;
-	int i = 0;
-	for (i = 0; i < 2; ++i){
-		if (player == players[i])
-			break;
-	}
-	availible_moves = game_board.getAvailibleMoves(players[i], player_pawns[i]);
-	if (availible_moves->empty()){
-		winner = otherPlayer(players[i]);
-	}
-	else {
-		int pawn_count = 0;
-		for (auto checked_pawn: player_pawns[i]){
-			if (checked_pawn.lock())
-				++pawn_count;
-		}
-		if(!pawn_count){
-			winner = otherPlayer(players[i]);
-		}
-	}
-	delete availible_moves;
-	return winner;
-}
-int Game::minimax(Board& current_board, int depth, int maximizingPlayer){
-	std::cerr << "start poziom " << depth << '\n';
-	current_board.print();
+int Game::alphabeta(Board& current_board, Move& best_move, int depth, OwningPlayer player, int alpha, int beta){
+	// std::cerr << "start poziom " << depth << '\n';
 	int value;
-    if (depth == 0){ //or node is a terminal node
-    	int retval = current_board.getScore(COMPUTER, player_pawns[1]) - current_board.getScore(HUMAN, player_pawns[0]);
-    	std::cerr << " return " << retval << '\n';
-    	return retval;
-    }
+	// current_board.print();
+	if (depth == 0){ //or node is a terminal node
+		value = current_board.getScore(COMPUTER) - current_board.getScore(HUMAN);
+		// std::cerr << " return " << value << '\n';
+		return value;
+	}
 
-    std::vector<Move>* possible_moves = current_board.getAvailibleMoves(players[maximizingPlayer], player_pawns[maximizingPlayer]);
-    std::vector<Board>* possible_boards = new std::vector<Board>(possible_moves->size(), current_board);
-    std::cerr << possible_moves->size() << "dostępnych ruchów\n";
-    for (unsigned int i = 0; i < possible_moves->size(); ++i){
-    	possible_boards->at(i).movePawn(possible_moves->at(i));
-    }
-    if (players[maximizingPlayer] == COMPUTER){
-    	value = minus_infty;
-    	for (auto checked_board: *possible_boards){
-    		value = std::max(value, minimax(checked_board, depth - 1, 0));
-    	}
-    }
-    else{
-    	value = plus_infty;
-    	for (auto checked_board: *possible_boards){
-    		value = std::min(value, minimax(checked_board, depth - 1, 1));
-    	}
-    }
-    delete possible_moves;
-    delete possible_boards;
-    std::cerr << "stop poziom " << depth << "- " << value << '\n';
-    return value;
+	std::vector<Move>* possible_moves = current_board.getAvailibleMoves(player);
+	std::vector<Board>* possible_boards = new std::vector<Board>(possible_moves->size(), current_board);
+	// std::cerr << possible_moves->size() << "dostępnych ruchów\n";
+	for (unsigned int i = 0; i < possible_moves->size(); ++i){
+		possible_boards->at(i).movePawn(possible_moves->at(i));
+	}
+	if (player == COMPUTER){
+		for (unsigned int i = 0; i < possible_boards->size(); ++i){
+			value = alphabeta(possible_boards->at(i), best_move, depth-1, HUMAN, alpha, beta);
+			alpha = std::max(alpha, value);
+			if (alpha == value && depth == 6)
+				best_move = possible_moves->at(i);
+			if (alpha >= beta){
+				// std::cerr << "alpha cut";
+				break;
+			}
+		}
+		return alpha;
+	}
+	else{
+		for (unsigned int i = 0; i < possible_boards->size(); ++i){
+			beta = std::min(beta, alphabeta(possible_boards->at(i), best_move, depth-1, COMPUTER, alpha, beta));
+			if (alpha >= beta){
+				// std::cerr << "beta cut";
+				break;
+			}
+		}
+		return beta;
+	}
+	delete possible_moves;
+	delete possible_boards;
+	// std::cerr << "stop poziom " << depth << "- " << value << '\n';
 }

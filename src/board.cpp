@@ -73,11 +73,12 @@ std::shared_ptr<Pawn> Board::movePawn(sf::Vector2i start, sf::Vector2i finish, M
 			sf::Vector2i beaten_pawn(start.x + (finish.x - start.x)/2, start.y + direction);
 			getPawn(beaten_pawn).reset();
 			setPawn(beaten_pawn, nullptr);
-
 		}
 		setPawn(start, nullptr);
 		setPawn(finish, pawn);
 		pawn->coordinates = finish;
+		resolveBeating(pawn->owner);
+
 		return pawn;
 	}
 	return nullptr;
