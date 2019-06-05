@@ -91,7 +91,10 @@ void Game::play(){
 
 int Game::computerMove(){
 	Move computer_move;
+	sf::Clock clock;
+	clock.restart();
 	alphabeta(game_board, computer_move, 6, COMPUTER, minus_infty, plus_infty);
+	std::cerr << clock.getElapsedTime().asMilliseconds();
 	executeMove(computer_move.start, computer_move.finish, computer_move.type);
 	return 0;
 }

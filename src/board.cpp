@@ -116,7 +116,9 @@ MoveType Board::checkMove(sf::Vector2i& start, sf::Vector2i& finish){
 			if (finish.y == start.y + direction){
 				if (finish.x == start.x + 1 || finish.x == start.x - 1){
 					if (!getPawn(finish)){
-						result = NORMAL;
+						if(!getBeatPossible(pawn->owner)){
+							result = NORMAL;
+						}
 					}
 				}
 			}
@@ -137,54 +139,74 @@ MoveType Board::checkMove(sf::Vector2i& start, sf::Vector2i& finish){
 	return result;
 }
 
-std::vector<Move>* Board::getAvailibleMoves(OwningPlayer player, const std::vector<std::weak_ptr<Pawn>> pawn_vector){
+bool& Board::getBeatPossible(OwningPlayer player){
+	if (player == COMPUTER)
+		return beat_possible[1];
+	return beat_possible[0];
+}
+
+void Board::resolveBeating(OwningPlayer player){
+	getBeatPossible(player) = false;
+	std::vector<Move>* move_vector = getAvailibleMoves(player);
+	for (auto tested_move: *move_vector){
+		if (tested_move.type == BEAT)
+			getBeatPossible(player) = true;
+	}
+}
+
+std::vector<Move>* Board::getAvailibleMoves(OwningPlayer player){
 	std::vector<Move>* move_vector = new std::vector<Move>;
-	for (auto pawn: pawn_vector){
-		auto new_moves = getAvailibleMoves(player, pawn);
-		if(!new_moves->empty())
-			move_vector->insert(move_vector->end(), new_moves->begin(), new_moves->end());
-		delete new_moves;
+	for (auto pawn_ptr: getVector(player)){
+		if (auto pawn = pawn_ptr.lock()){
+			auto new_moves = getAvailibleMoves(player, pawn);
+			if(!new_moves->empty())
+				move_vector->insert(move_vector->end(), new_moves->begin(), new_moves->end());
+			delete new_moves;
+		}
 	}
 	return move_vector;
 }
 
-std::vector<Move>* Board::getAvailibleMoves(OwningPlayer player, const std::weak_ptr<Pawn> pawn_weak){
+std::vector<Move>* Board::getAvailibleMoves(OwningPlayer player, const std::shared_ptr<Pawn> pawn){
 	std::vector<Move>* move_vector = new std::vector<Move>;
 	sf::Vector2i start, finish;
 	int direction = 1;
-	if (auto pawn = pawn_weak.lock()){
+	if (pawn){
 		if (player == COMPUTER)
 			direction = -1;
 		start = pawn->coordinates;
 		for (int k: {1,2}){
 			for (int l: {-1,1}){
 				finish = start + sf::Vector2i(l*k, k*direction);
+				// std::cerr << start.x << ' ' << start.y << ' ' << finish.x <<  ' ' << finish.y;
 				MoveType result = checkMove(start, finish);
 				if (result != INVALID){
 					Move new_move = Move(start, finish, result);
+					// std::cerr << " valid move";
 					move_vector->push_back(new_move);
 				}
+				// std::cerr << '\n';
 			}
 		}
 	}
 	return move_vector;
 }
 
-int Board::getScore(OwningPlayer player, const std::vector<std::weak_ptr<Pawn>>& pawn_vector){
+int Board::getScore(OwningPlayer player){
 	int score = 0;
-	for (auto pawn_weak: pawn_vector){
+	for (auto pawn_weak: getVector(player)){
 		if (auto pawn = pawn_weak.lock()){
 			std::vector<Move>* move_vector = new std::vector<Move>;
 			int x = pawn->coordinates.x;
 			int y = pawn->coordinates.y;
-			score += 5;
+			score += 10;
 			if (player == HUMAN){
 				if (y == 2 || y == 3)
 					score += 1;
 				else if (y == 4 || y == 5)
 					score += 3;
 				else if (y == 6 || y == 7)
-					score += 17;
+					score += 5;
 			}
 			else{
 				if (y == 5 || y == 4)
@@ -192,7 +214,7 @@ int Board::getScore(OwningPlayer player, const std::vector<std::weak_ptr<Pawn>>&
 				else if (y == 3 || y == 2)
 					score += 3;
 				else if (y == 1 || y == 0)
-					score += 17;
+					score += 5;
 			}
 			if ((x == 0 || x == 7) && (y == 0 || y == 7))
 				score += 2;
@@ -209,4 +231,27 @@ int Board::getScore(OwningPlayer player, const std::vector<std::weak_ptr<Pawn>>&
 		}
 	}
 	return score;
+}
+
+OwningPlayer Board::checkWin(OwningPlayer player){
+	resolveBeating(player);
+	OwningPlayer winner = NOBODY;
+	std::vector<Move>* availible_moves;
+
+	availible_moves = getAvailibleMoves(player);
+	if (availible_moves->empty()){
+		winner = otherPlayer(player);
+	}
+	else {
+		int pawn_count = 0;
+		for (auto checked_pawn: getVector(player)){
+			if (!checked_pawn.expired())
+				++pawn_count;
+		}
+		if(!pawn_count){
+			winner = otherPlayer(player);
+		}
+	}
+	delete availible_moves;
+	return winner;
 }
